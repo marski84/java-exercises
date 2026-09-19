@@ -17,16 +17,33 @@ package com.amigoscode._3_oop._5_dependencyinjection;
 
 // TODO: 1 - Create a MessageSender interface with a single method:
 //   void send(String to, String message)
+interface MessageSender {
+    void send(String to, String message);
+}
 
 
 // TODO: 2 - Create an EmailSender class that implements MessageSender.
 //   Implement send() to print:
 //   "[Email] Sending to <to>: <message>"
+class EmailSender implements MessageSender {
+
+    @Override
+    public void send(final String to, final String message) {
+        System.out.println("[Email] Sending to " + to + ": " + message);
+    }
+}
 
 
 // TODO: 3 - Create an SmsSender class that implements MessageSender.
 //   Implement send() to print:
 //   "[SMS] Sending to <to>: <message>"
+class SmsSender implements MessageSender {
+
+    @Override
+    public void send(final String to, final String message) {
+        System.out.println("[Email] Sending to " + to + ": " + message);
+    }
+}
 
 
 // TODO: 4 - Create the NotificationService class.
@@ -34,7 +51,19 @@ package com.amigoscode._3_oop._5_dependencyinjection;
 //   - Create a constructor that takes a MessageSender parameter
 //     and assigns it to the field. This is constructor injection —
 //     the dependency is provided from outside, not created inside.
+class NotificationService {
+    private final MessageSender messageSender;
 
+    NotificationService(final MessageSender messageSender) {
+        this.messageSender = messageSender;
+    }
+
+    public void sendNotification(String to, String message) {
+        this.messageSender.send(to, message);
+    }
+
+
+}
 
 // TODO: 5 - In NotificationService, add a method:
 //   void sendNotification(String to, String message)
@@ -43,11 +72,22 @@ package com.amigoscode._3_oop._5_dependencyinjection;
 
 
 class NotificationDemo {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         // TODO: 6 - Create a NotificationService with an EmailSender.
         //   Call sendNotification("alice@example.com", "Hello via email!").
         //   Then create ANOTHER NotificationService with an SmsSender.
         //   Call sendNotification("+1234567890", "Hello via SMS!").
+
+        MessageSender emailSender = new EmailSender();
+        MessageSender smsSender = new SmsSender();
+
+        NotificationService emailNotificationService = new NotificationService(emailSender);
+        NotificationService smslNotificationService = new NotificationService(smsSender);
+
+        emailNotificationService.sendNotification("foo", "bar email");
+        smslNotificationService.sendNotification("bar", "sms");
+
+
 
 
         // TODO: 7 - Demonstrate swapping implementations:

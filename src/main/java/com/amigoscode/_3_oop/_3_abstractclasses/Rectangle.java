@@ -26,7 +26,7 @@ public class Rectangle extends Shape {
     //   Validate that both are > 0, throwing IllegalArgumentException if not.
     //   Assign the fields.
 
-    Rectangle(final double width, final double height) {
+    public Rectangle(final double width, final double height) {
         this.width = width;
         this.height = height;
     }
@@ -48,12 +48,12 @@ public class Rectangle extends Shape {
     //   Formula: width * height
     //   Use the @Override annotation.
     @Override
-    double area() {
+    public double area() {
         return width * height;
     }
 
     @Override
-    double perimeter() {
+    public double perimeter() {
         return 2 * (width + height);
     }
 

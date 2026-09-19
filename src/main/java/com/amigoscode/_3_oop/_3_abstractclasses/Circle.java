@@ -24,7 +24,7 @@ public class Circle extends Shape {
     //   Validate that radius > 0, throwing IllegalArgumentException if not.
     //   Assign the field.
 
-    Circle(final double radius) {
+    public Circle(final double radius) {
         this.radius = radius;
     }
 
@@ -41,7 +41,7 @@ public class Circle extends Shape {
     //   Formula: Math.PI * radius * radius
     //   Use the @Override annotation.
     @Override
-    double area() {
+    public double area() {
         return Math.PI * radius * radius;
     }
 
@@ -49,7 +49,7 @@ public class Circle extends Shape {
     //   Formula: 2 * Math.PI * radius
     //   Use the @Override annotation.
     @Override
-    double perimeter() {
+    public double perimeter() {
         return 2 * Math.PI * radius;
     }
 

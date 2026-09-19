@@ -1,6 +1,5 @@
 package com.amigoscode._3_oop._6_solid;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +37,70 @@ public class SolidExercises {
         }
     }
 
+    // =========================================================================
+    // Main method to test all exercises
+    // =========================================================================
+    static void main(String[] args) {
+        System.out.println("=== SOLID Exercises ===\n");
+
+        // TODO: 6 - Test SRP: Create UserValidator, UserRepository, UserNotifier,
+        //   and a refactored UserManager. Call createUser("Alice", "alice@test.com").
+
+        UserValidator userValidator = new UserValidator();
+        UserRepository userRepository = new UserRepository();
+        UserNotifier userNotifier = new UserNotifier();
+        UserManager userManager = new UserManager(userValidator, userNotifier, userRepository);
+        userManager.createUser("Alice", "alice@test.com");
+
+
+
+        // TODO: 7 - Test OCP: Create a DiscountCalculator and several Discount
+        //   implementations. Calculate discounts for a $100 item and print results.
+
+        Discount seasonalDiscount = new SeasonalDiscount();
+        Discount saleDiscount = new ClearanceDiscount();
+        DiscountCalculator seasonalCalculator = new DiscountCalculator(seasonalDiscount);
+        DiscountCalculator saleCalculator = new DiscountCalculator(saleDiscount);
+
+        List.of(seasonalCalculator, saleCalculator).forEach(
+                c -> System.out.println(c.calculate(560))
+        );
+
+
+        // TODO: 8 - Test DIP: Create a ReportGenerator with MySQLDatabase,
+        //   generate a report. Then create another with PostgreSQLDatabase
+        //   and generate a report. Print both results to show the
+        //   implementation was swapped without changing ReportGenerator.
+
+        Database mySqlDatabase = new MySqlDatabase();
+        Database postgresqlDatabase = new PostgresqlDatabase();
+
+        ReportGenerator mySqlreportGenerator = new ReportGenerator(mySqlDatabase);
+        ReportGenerator postgresReportGenerator = new ReportGenerator(postgresqlDatabase);
+
+        List.of(mySqlreportGenerator, postgresReportGenerator)
+                .forEach(r -> r.generateReport("test"));
+    }
+
+    // TODO: 2 - Refactor using an interface:
+    //   - Create a Discount interface with: double apply(double price)
+    //   - Create SeasonalDiscount implementing Discount (10% off)
+    //   - Create ClearanceDiscount implementing Discount (50% off)
+    //   - Create a DiscountCalculator class with a method:
+    //     double calculate(Discount discount, double price)
+    //     that just calls discount.apply(price)
+    //   Now new discount types can be added without modifying DiscountCalculator.
+    interface Discount {
+        double SEASONAL_DISCOUNT_LEVEL = 0.1;
+        double CLEARANCE_DISCOUNT_LEVEL = 0.5;
+
+        double apply(double price);
+    }
+
+    interface Database {
+        String query(String sql);
+    }
+
     // TODO: 1 - Refactor by creating three separate classes:
     //   - UserValidator with a method: void validate(String name, String email)
     //     that throws IllegalArgumentException for invalid input
@@ -47,7 +110,12 @@ public class SolidExercises {
     //     that prints "Sending welcome email to <email>..."
     //   Then create a refactored UserManager that uses all three via
     //   constructor injection and has a createUser(name, email) method.
-
+    static class UserValidator {
+        public void validate(String name, String email) {
+            if (name == null || name.isEmpty()) throw new IllegalArgumentException("Invalid name");
+            if (!email.contains("@")) throw new IllegalArgumentException("Invalid email");
+        }
+    }
 
     // =========================================================================
     // OCP - Open/Closed Principle
@@ -67,14 +135,44 @@ public class SolidExercises {
         }
     }
 
-    // TODO: 2 - Refactor using an interface:
-    //   - Create a Discount interface with: double apply(double price)
-    //   - Create SeasonalDiscount implementing Discount (10% off)
-    //   - Create ClearanceDiscount implementing Discount (50% off)
-    //   - Create a DiscountCalculator class with a method:
-    //     double calculate(Discount discount, double price)
-    //     that just calls discount.apply(price)
-    //   Now new discount types can be added without modifying DiscountCalculator.
+    static class UserRepository {
+        public void save(String name, String email) {
+            System.out.println("Saving user: " + name + " to database..");
+        }
+    }
+
+    static class UserNotifier {
+        public void sendWelcome(String email) {
+            System.out.println("Sending welcome email to: " + email);
+        }
+    }
+
+    static class UserManager {
+        private final UserValidator userValidator;
+        private final UserNotifier userNotifier;
+        private final UserRepository userRepository;
+
+        UserManager(final UserValidator userValidator, final UserNotifier userNotifier, final UserRepository userRepository) {
+            this.userValidator = userValidator;
+            this.userNotifier = userNotifier;
+            this.userRepository = userRepository;
+        }
+
+        public void createUser(String name, String email) {
+            userValidator.validate(name, email);
+            userRepository.save(name, email);
+            userNotifier.sendWelcome(email);
+        }
+    }
+
+    static class SeasonalDiscount implements Discount {
+
+        @Override
+        public double apply(final double price) {
+            return price - (price * SEASONAL_DISCOUNT_LEVEL);
+        }
+    }
+
 
 
     // =========================================================================
@@ -162,7 +260,7 @@ public class SolidExercises {
     }
 
     static class ReportGeneratorBroken {
-        private MySQLDatabaseBroken database = new MySQLDatabaseBroken(); // tight coupling!
+        private final MySQLDatabaseBroken database = new MySQLDatabaseBroken(); // tight coupling!
         String generateReport() {
             return database.query("SELECT * FROM reports");
         }
@@ -176,25 +274,51 @@ public class SolidExercises {
     //   - Create ReportGenerator that takes Database in its constructor
     //     (constructor injection) and uses it in generateReport()
 
+    public static class ClearanceDiscount implements Discount {
 
-    // =========================================================================
-    // Main method to test all exercises
-    // =========================================================================
-    public static void main(String[] args) {
-        System.out.println("=== SOLID Exercises ===\n");
+        @Override
+        public double apply(final double price) {
+            return price * CLEARANCE_DISCOUNT_LEVEL;
+        }
+    }
 
-        // TODO: 6 - Test SRP: Create UserValidator, UserRepository, UserNotifier,
-        //   and a refactored UserManager. Call createUser("Alice", "alice@test.com").
+    public static class DiscountCalculator {
+        private final Discount discount;
 
+        DiscountCalculator(final Discount discount) {
+            this.discount = discount;
+        }
 
-        // TODO: 7 - Test OCP: Create a DiscountCalculator and several Discount
-        //   implementations. Calculate discounts for a $100 item and print results.
+        public double calculate(double price) {
+            return discount.apply(price);
+        }
+    }
 
+    static class MySqlDatabase implements Database {
 
-        // TODO: 8 - Test DIP: Create a ReportGenerator with MySQLDatabase,
-        //   generate a report. Then create another with PostgreSQLDatabase
-        //   and generate a report. Print both results to show the
-        //   implementation was swapped without changing ReportGenerator.
+        @Override
+        public String query(final String sql) {
+            return "mysql query: " + sql;
+        }
+    }
 
+    static class PostgresqlDatabase implements Database {
+
+        @Override
+        public String query(final String sql) {
+            return "postgresql query: " + sql;
+        }
+    }
+
+    static class ReportGenerator {
+        private final Database database;
+
+        ReportGenerator(final Database database) {
+            this.database = database;
+        }
+
+        public void generateReport(String query) {
+            System.out.println(database.query(query));
+        }
     }
 }
