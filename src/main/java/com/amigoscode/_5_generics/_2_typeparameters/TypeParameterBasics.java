@@ -11,8 +11,34 @@ package com.amigoscode._5_generics._2_typeparameters;
  */
 public class TypeParameterBasics {
 
-    // TODO: 1 - Declare a generic class Container<T> with a single private field
-    //  of type T called "value".
+    static void main(String[] args) {
+
+        // TODO: 5 - Create two Container instances:
+        //  (a) Container<String> holding the value "Java Generics"
+        //  (b) Container<Integer> holding the value 2024
+        //  Print both containers using toString().
+
+        Container<String> stringContainer = new Container<>("Java Generics");
+        Container<Integer> integerContainer = new Container<>(2024);
+
+        System.out.println(stringContainer);
+        System.out.println(integerContainer);
+
+
+        // TODO: 6 - Demonstrate type safety: try to call setValue(123) on the
+        //  Container<String> instance. Comment it out and explain why the
+        //  compiler rejects it. Then call setValue with a valid String and
+        //  print the updated container.
+//        try {
+//            stringContainer.setValue(123);
+//        } catch (Exception e) {
+//
+//        }
+//        Generics protects us from adding unapropriate type.
+        stringContainer.setValue("updated");
+        System.out.println(stringContainer);
+
+    }
 
 
     // TODO: 2 - Add a constructor to Container that takes a parameter of type T
@@ -26,19 +52,28 @@ public class TypeParameterBasics {
     // TODO: 4 - Add a toString() method to Container that returns
     //  "Container{value=" + value + "}".
 
+    // TODO: 1 - Declare a generic class Container<T> with a single private field
+    //  of type T called "value".
+    static class Container<T> {
+        private T value;
 
-    public static void main(String[] args) {
+        Container(final T value) {
+            this.value = value;
+        }
 
-        // TODO: 5 - Create two Container instances:
-        //  (a) Container<String> holding the value "Java Generics"
-        //  (b) Container<Integer> holding the value 2024
-        //  Print both containers using toString().
+        T getValue() {
+            return value;
+        }
 
+        void setValue(final T value) {
+            this.value = value;
+        }
 
-        // TODO: 6 - Demonstrate type safety: try to call setValue(123) on the
-        //  Container<String> instance. Comment it out and explain why the
-        //  compiler rejects it. Then call setValue with a valid String and
-        //  print the updated container.
-
+        @Override
+        public String toString() {
+            return "Container{" +
+                    "value=" + value +
+                    '}';
+        }
     }
 }
